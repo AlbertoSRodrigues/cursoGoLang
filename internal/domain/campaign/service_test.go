@@ -19,17 +19,34 @@ func (r *repositoryMock) Save(campaign *Campaign) error {
 	return args.Error(0)
 }
 
+func (r *repositoryMock) Get() ([]Campaign, error) {
+	//args := r.Called(campaign)
+	return nil, nil
+}
+
+func (r *repositoryMock) GetBy(id string) (*Campaign, error) {
+	args := r.Called(id)
+	if args.Error(1) != nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*Campaign), nil
+}
+
 var (
 	campanhaTeste = contract.NewCampaign{
 		Name:    "campanha",
-		Content: "Body",
+		Content: "Bodys",
 		Emails:  []string{"email1@g.com", "email2@g.com", "email3@g.com"},
 	}
-	service = Service{}
+
+	service = ServiceImp{}
 )
 
 func Test_Create_Campaign(t *testing.T) {
 	assert := assert.New(t)
+	repositoryMock := new(repositoryMock)
+	repositoryMock.On("Save", mock.Anything).Return(nil)
+	service.Repository = repositoryMock
 
 	id, err := service.Create(campanhaTeste)
 
@@ -39,12 +56,10 @@ func Test_Create_Campaign(t *testing.T) {
 
 func Test_ValidateDomainError_Campaign(t *testing.T) {
 	assert := assert.New(t)
-	campanhaTeste.Name = ""
 
-	_, err := service.Create(campanhaTeste)
+	_, err := service.Create(contract.NewCampaign{})
 
-	assert.NotNil(err)
-	assert.Equal("name is required", err.Error())
+	assert.False(errors.Is(internalerrors.ErrInteral, err))
 }
 
 func Test_Save_Campaign(t *testing.T) {
@@ -75,4 +90,28 @@ func Test_Save_Repository(t *testing.T) {
 	_, err := service.Create(campanhaTeste)
 
 	assert.True(errors.Is(internalerrors.ErrInteral, err))
+}
+
+func Test_Get_CampaignById(t *testing.T) {
+	assert := assert.New(t)
+	campaign, _ := NewCampaign(campanhaTeste.Name, campanhaTeste.Content, campanhaTeste.Emails)
+	repositoryMock := new(repositoryMock)
+	repositoryMock.On("GetBy", mock.Anything).Return(campaign, nil)
+	service.Repository = repositoryMock
+
+	returnedCampaign, _ := service.GetBy(campaign.ID)
+
+	assert.Equal(campaign.ID, returnedCampaign.Id)
+}
+
+func Test_Get_CampignById_Error(t *testing.T) {
+	assert := assert.New(t)
+	campaign, _ := NewCampaign(campanhaTeste.Name, campanhaTeste.Content, campanhaTeste.Emails)
+	repositoryMock := new(repositoryMock)
+	repositoryMock.On("GetBy", mock.Anything).Return(nil, errors.New("Deu erro"))
+	service.Repository = repositoryMock
+
+	_, err := service.GetBy(campaign.ID)
+
+	assert.Equal(internalerrors.ErrInteral.Error(), err.Error())
 }

@@ -1,0 +1,9 @@
+POST http://localhost:3000/campaigns
+
+{
+"Name": "Relo Uolrdi",
+"Content": "vamover",
+"emails": ["email@g.com"]
+}
+###
+GET http://localhost:3000/campaigns/30

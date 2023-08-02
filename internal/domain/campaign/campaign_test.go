@@ -10,7 +10,7 @@ import (
 var (
 	name     = "Campaign X"
 	content  = "Bodys"
-	contacts = []string{"email1@g.com", "email2@g.com", "email3@g.com", "asdasd"}
+	contacts = []string{"email1@g.com", "email2@g.com", "email3@g.com"}
 	fake     = faker.New()
 )
 
@@ -22,7 +22,7 @@ func Test_NewCampaign_CreateCampaign(t *testing.T) {
 	assert.Equal(campaign.Name, name) //assert
 	assert.Equal(campaign.Content, content)
 	assert.Equal(len(campaign.Contacts), len(contacts))
-
+	assert.Equal(campaign.Status, "pending")
 }
 
 func Test_NewCampaign_NotEmpty(t *testing.T) {
@@ -31,6 +31,7 @@ func Test_NewCampaign_NotEmpty(t *testing.T) {
 	campaign, _ := NewCampaign(name, content, contacts) //act
 
 	assert.NotEmpty(campaign.ID) //Assert
+
 }
 
 func Test_NewCampaign_MustValidate_MinChar_Name(t *testing.T) {
