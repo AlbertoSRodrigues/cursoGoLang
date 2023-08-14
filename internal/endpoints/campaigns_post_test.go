@@ -25,6 +25,12 @@ func (r *serviceMock) GetBy(id string) (*contract.ReadCampaign, error) {
 	//args := r.Called(id)
 	return nil, nil
 }
+func (r *serviceMock) Cancel(id string) error {
+	return nil
+}
+func (r *serviceMock) Delete(id string) error {
+	return nil
+}
 
 func Test_CampaignPost_Save_NewCampaign(t *testing.T) {
 	assert := assert.New(t)
